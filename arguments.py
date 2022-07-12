@@ -22,7 +22,7 @@ def get_general_args(args=None):
         help='the specific seed to run')
     parser.add_argument('--batch-size', type=int, default=10, 
         help='size of the batch in optimization')
-    parser.add_argument('--n-init-sample', type=int, default=20, 
+    parser.add_argument('--n-init-sample', type=int, default=0, 
         help='number of initial design samples')
     parser.add_argument('--n-total-sample', type=int, default=100, 
         help='number of total design samples (budget)')
