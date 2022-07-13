@@ -40,6 +40,34 @@ def plot_performance_space(Y):
     plt.title('Performance Space')
     plt.show()
 
+def plot_performance_space_diffcolor(Y0, Y_eval):
+    '''
+    '''
+    Y0 = np.array(Y0)
+    Y_eval = np.array(Y_eval)
+    assert Y_eval.ndim == 2, f'Invalid shape {Y.shape} of objectives to plot'
+    if Y_eval.shape[1] == 1:
+        plt.scatter(Y0, [0] * len(Y0), marker='x', color='red')
+        plt.scatter(Y_eval, [0] * len(Y_eval), marker='x', color='blue')
+    elif Y_eval.shape[1] == 2:
+        plt.scatter(*Y0.T, color='red')
+        plt.scatter(*Y_eval.T, color='blue')
+    elif Y_eval.shape[1] == 3:
+        fig = plt.figure()
+        ax = fig.gca(projection='3d')
+        ax.scatter(*Y0.T, color='red')
+        ax.scatter(*Y_eval.T, color='blue')
+    elif Y_eval.shape[1] > 3:
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        segments = parallel_transform(Y_eval)
+        ax.add_collection(LineCollection(segments))
+        ax.set_xlim(0, Y_eval.shape[1] - 1)
+        ax.set_ylim(np.min(Y_eval), np.max(Y_eval))
+    else:
+        raise Exception(f'Objectives with dimension {Y.shape[1]} is not supported')
+    plt.title('Performance Space')
+    plt.show()
 
 def plot_performance_metric(Y, obj_type):
     '''

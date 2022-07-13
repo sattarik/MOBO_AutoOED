@@ -50,6 +50,7 @@ class SurrogateProblem(Problem):
         # evaluate cheap constraints by real problem
         X_raw = self.transformation.undo(X)
         out['G'] = np.array([self.problem.evaluate_constraint(x_raw) for x_raw in X_raw])
+        print (" Out['G'] ", out['G'])
 
     def evaluate(self, X, *args, return_values_of="auto", return_as_dictionary=False, **kwargs):
         '''

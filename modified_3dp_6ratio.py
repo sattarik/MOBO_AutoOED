@@ -13,7 +13,11 @@ if __name__ == '__main__':
 
     # load arguments
     args, module_cfg = get_args()
-
+    print (args.seed)
+    print (module_cfg)
+    print (type(module_cfg))
+    print (args)
+    print (type(args))
     # set random seed
     set_seed(args.seed)
 
@@ -31,7 +35,7 @@ if __name__ == '__main__':
     Y = np.array([problem.evaluate_objective(x) for x in X])
     print ('read X', X.shape)
     print ('read Y', Y.shape)
-    path = ['/home/kianoosh/github/MOBO_AutoOED/x.csv', '/home/kianoosh/github/MOBO_AutoOED/y.csv']
+    path = ['/home/kianoosh/github/MOBO_AutoOED/Yuchao_20220511_X.csv', '/home/kianoosh/github/MOBO_AutoOED/Yuchao_20220511_Y.csv']
     X, Y = load_provided_initial_samples(path)
     print ('read X', X.shape)
     print ('read Y', Y.shape)
