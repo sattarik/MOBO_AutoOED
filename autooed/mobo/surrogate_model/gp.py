@@ -97,7 +97,7 @@ def constrained_optimization(obj_func, initial_theta, bounds):
     '''
     opt_res = minimize(obj_func, initial_theta, method="L-BFGS-B", jac=True, bounds=bounds)
     # NOTE: Temporarily disable the checking below because of the numerical instability sometimes.
-    # _check_optimize_result("lbfgs", opt_res)
+    _check_optimize_result("lbfgs", opt_res)
     return opt_res.x, opt_res.fun
 
 

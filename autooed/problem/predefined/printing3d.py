@@ -13,10 +13,11 @@ class printing3d(Problem):
 
     config = {
         'type': 'continuous',
-        'n_var': 6,
+        'n_var': 5,
         'n_obj': 2,
-        'var_lb': [0, 0, 0, 0, 0, 0],
-        'var_ub': [0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+        'n_constr':2,
+        'var_lb': [0, 0, 0, 0, 0],
+        'var_ub': [1, 1, 1, 1, 1]
     }
 
     def __init__(self):
@@ -37,10 +38,12 @@ class printing3d(Problem):
         f = np.array(f)
         return f
 
-    def evaluate_constraint(self, x_):
-        g1 = np.round(np.sum(x_), 2) - 1 
-        return g1
-
+    def evaluate_constraint(self, x_, RFclassifier):
+        x1, x2, x3, x4, x5 = x_[0], x_[1], x_[2], x_[3], x_[4] 
+        g1 = x1 + x2 + x3 + x4 + x5 -1
+        x_ = x_.reshape(1, -1)
+        g2 = -RFclassifier.predict_proba(x_)[0][1] + 0.5
+        return g1, g2
 
 class printing3d_dlp(printing3d):
 
@@ -49,9 +52,6 @@ class printing3d_dlp(printing3d):
         ref_dirs = get_reference_directions('das-dennis', n_dim=self.n_obj, **ref_kwargs)
         return 0.5 * ref_dirs
    
-    def evaluate_constraint(self, x_):
-        g1 = np.round(np.sum(x_), 2) - 1 
-        return g1
 
     def evaluate_objective(self, x_, alpha=1):
         f = []
@@ -66,3 +66,24 @@ class printing3d_dlp(printing3d):
 
         f = np.array(f)
         return f
+
+    def evaluate_constraint(self, x_, RFclassifier):
+        x1, x2, x3, x4, x5 = x_[0], x_[1], x_[2], x_[3], x_[4] 
+        g1 = x1 + x2 + x3 + x4 + x5 -1
+        x_ = x_.reshape(1, -1)
+        g2 = -RFclassifier.predict_proba(x_)[0][1] + 0.5
+        return g1, g2
+
+
+
+
+
+
+
+
+
+
+
+
+
+

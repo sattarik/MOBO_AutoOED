@@ -113,7 +113,7 @@ class MOBO:
 
         return X_next
 
-    def _optimize_async(self, X, Y, X_busy, batch_size):
+    def _optimize_async(self, X, Y, RFclassifier, X_busy, batch_size):
         '''
         Asynchronous optimization.
         '''
@@ -128,7 +128,7 @@ class MOBO:
 
         return X_next
 
-    def predict(self, X, Y, X_next, fit=False):
+    def predict(self, X, Y, RFclassifier, X_next, fit=False):
         '''
         Predict the performance of X_next based on initial data.
 

@@ -24,7 +24,7 @@ class NSGA2(Solver):
         # initialize population
         X = np.vstack([X, lhs(X.shape[1], batch_size)])
         self.algo.initialization.sampling = X
-        
+        #print ('problem definition in NSGA2 ', self.problem)
         res = minimize(self.problem, self.algo, ('n_gen', self.n_gen))
 
         return res.pop.get('X'), res.pop.get('F')

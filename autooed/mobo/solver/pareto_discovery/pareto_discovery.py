@@ -47,7 +47,7 @@ def _local_optimization(x, y, f, eval_func, bounds, constr_func, delta_s):
     # constraint function
     if constr_func is not None:
         def fun_constr(x):
-            return -constr_func(x)
+            return -constr_func(x, RFclassifier)
 
     # jacobian of the objective
     dy = eval_func(x, return_values_of=['dF'])
@@ -552,7 +552,7 @@ class ParetoDiscoveryAlgorithm(Algorithm):
                 xs_final = xs_perturb
             else:
                 # check constraint values
-                constr = self.constr_func(xs_perturb)
+                constr = self.constr_func(xs_perturb, RFclassifier)
                 flag = constr <= 0
                 if np.any(flag):
                     xs_final = np.vstack((xs_final, xs_perturb[flag]))

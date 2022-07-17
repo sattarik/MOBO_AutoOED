@@ -8,6 +8,39 @@ from pymoo.model.problem import Problem
 from pymoo.model.problem import at_least2d
 
 
+# printability as Y
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
+df = pd.read_csv('./Yuchao_20220511.csv')
+#df = pd.read_csv('Imaginery_initial_.csv')
+Printability = np.asarray (df['Printability']).reshape(1,-1)
+Y0 = Printability.T
+Y = np.where(Y0 == 'Y', 1, 0)
+
+#X_ = df.to_numpy()
+A_Ratio = np.asarray (df['R1(HA)']).reshape(1,-1)
+B_Ratio = np.asarray (df['R2(IA)']).reshape(1,-1)
+C_Ratio = np.asarray (df['R3(NVP)']).reshape(1,-1)
+D_Ratio = np.asarray (df['R4(AA)']).reshape(1,-1)
+E_Ratio = np.asarray (df['R5(HEAA)']).reshape(1,-1)
+#F_Ratio = np.asarray (df['R6(IBOA)']).reshape(1,-1)
+X_ = np.concatenate((A_Ratio.T, B_Ratio.T, C_Ratio.T, D_Ratio.T, E_Ratio.T), 
+                    axis=1)
+
+X_train, X_test, y_train, y_test = train_test_split(
+   X_, Y, test_size=0.2)
+
+
+RF = RandomForestClassifier(max_depth=10)
+RF.fit(X_train, y_train)
+pred = RF.predict_proba(X_test)
+
+print (RF.score(X_train, y_train))
+print (RF.score(X_test, y_test))
+RFclassifier = RF
+
+
 class SurrogateProblem(Problem):
 
     def __init__(self, problem, acquisition):
@@ -25,11 +58,11 @@ class SurrogateProblem(Problem):
         self.transformation = problem.transformation
         self.acquisition = acquisition
         super().__init__(
-            n_var=problem.n_var, n_obj=problem.n_obj, n_constr=problem.n_constr, 
+            n_var=problem.n_var, n_obj=problem.n_obj, n_constr=problem.n_constr,
             xl=problem.xl, xu=problem.xu
         )
 
-    def _evaluate(self, X, out, *args, gradient, hessian, **kwargs):
+    def _evaluate(self, X, out, RFclassifier, *args, gradient, hessian, **kwargs):
         '''
         The main evaluation computation.
 
@@ -49,8 +82,8 @@ class SurrogateProblem(Problem):
         
         # evaluate cheap constraints by real problem
         X_raw = self.transformation.undo(X)
-        out['G'] = np.array([self.problem.evaluate_constraint(x_raw) for x_raw in X_raw])
-        print (" Out['G'] ", out['G'])
+        out['G'] = np.array([self.problem.evaluate_constraint(x_raw, RFclassifier) for x_raw in X_raw])
+        #print (" Out['G'] ", out['G'])
 
     def evaluate(self, X, *args, return_values_of="auto", return_as_dictionary=False, **kwargs):
         '''
@@ -116,7 +149,7 @@ class SurrogateProblem(Problem):
             out[val] = None
 
         # calculate the output array - either elementwise or not. also consider the gradient
-        self._evaluate(X, out, *args, gradient=gradient, hessian=hessian, **kwargs)
+        self._evaluate(X, out, RFclassifier, *args, gradient=gradient, hessian=hessian, **kwargs)
         at_least2d(out)
 
         gradient_of = [key for key, val in out.items()
@@ -166,7 +199,7 @@ class SurrogateProblem(Problem):
             else:
                 return tuple([out[val] for val in return_values_of])
 
-    def evaluate_constraint(self, X):
+    def evaluate_constraint(self, X, RFclassifier):
         '''
         A constraint evaluation function for continuous design variables, which is needed in the solver.
 
@@ -183,9 +216,9 @@ class SurrogateProblem(Problem):
         X = self.transformation.undo(X)
 
         if X.ndim == 1:
-            return self.problem.evaluate_constraint(X)
+            return self.problem.evaluate_constraint(X, RFclassifier)
         elif X.ndim == 2:
-            G = np.array([self.problem.evaluate_constraint(x) for x in X])
+            G = np.array([self.problem.evaluate_constraint(x, RFclassifier) for x in X])
             if None in G:
                 return None
             else:
